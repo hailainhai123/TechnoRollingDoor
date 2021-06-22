@@ -31,8 +31,8 @@ class _DepartmentListScreenState extends State<DepartmentListScreen> {
   @override
   void initState() {
     initMqtt();
-    // departments.add(Department('Hà nội ', 'a1', '012345', 'mac'));
-    // isLoading = false;
+    departments.add(Department('Hà nội ', 'a1', '012345', 'mac'));
+    isLoading = false;
     super.initState();
   }
 

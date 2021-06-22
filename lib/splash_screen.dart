@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:health_care/helper/constants.dart' as Constants;
 import 'package:health_care/login/login_page.dart';
 import 'package:health_care/navigator.dart';
+import 'package:health_care/test_screen.dart';
 
-import 'helper/mqttClientWrapper.dart';
+import 'helper/mqttClient'
+    'Wrapper.dart';
 import 'helper/shared_prefs_helper.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -97,7 +99,8 @@ class _SplashScreenState extends State<SplashScreen> {
                               Constants.server_uri_key,
                               _serverUriController.text);
                         }
-                        navigatorPush(context, LoginPage());
+                        // navigatorPush(context, LoginPage());
+                        navigatorPush(context, TestScreen());
                       },
                     ),
                   ),

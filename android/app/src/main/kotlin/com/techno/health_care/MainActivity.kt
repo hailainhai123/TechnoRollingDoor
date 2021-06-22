@@ -1,4 +1,4 @@
-package com.techno.canh_bao_chay
+package com.techno.airconditional
 
 import io.flutter.embedding.android.FlutterActivity
 

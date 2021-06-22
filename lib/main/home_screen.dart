@@ -11,6 +11,7 @@ import 'package:health_care/main/device_list_screen.dart';
 import 'package:health_care/main/home_page.dart';
 import 'package:health_care/main/user_list_screen.dart';
 import 'package:health_care/main/user_profile_page.dart';
+import 'package:health_care/test_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -87,28 +88,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             label: 'Thiết bị',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.meeting_room_outlined,
-            ),
-            label: 'địa điểm',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(
+          //     Icons.meeting_room_outlined,
+          //   ),
+          //   label: 'địa điểm',
+          // ),
           // BottomNavigationBarItem(
           //   icon: Icon(
           //     Icons.details,
           //   ),
           //   label: 'Giám sát',
           // ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Thêm',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.account_box_outlined,
-            ),
-            label: 'Cá nhân',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.add),
+          //   label: 'Thêm',
+          // ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(
+          //     Icons.account_box_outlined,
+          //   ),
+          //   label: 'Cá nhân',
+          // ),
         ];
 
         items = [
@@ -168,13 +169,14 @@ class _HomeScreenState extends State<HomeScreen> {
           //   response: loginResponse,
           // ),
           // HomePage(),
-          DeviceListScreen(),
-          DepartmentListScreen(),
+          // DeviceListScreen(),
+          // DepartmentListScreen(),
+          TestScreen(),
           // DetailScreen(),
-          AddScreen(),
-          UserProfilePage(
-            quyen: '1',
-          ),
+          // AddScreen(),
+          // UserProfilePage(
+          //   quyen: '1',
+          // ),
         ];
         break;
       case 2:

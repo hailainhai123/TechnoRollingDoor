@@ -10,6 +10,8 @@ import 'package:health_care/model/thietbi.dart';
 import 'package:health_care/response/device_response.dart';
 
 import '../helper/constants.dart' as Constants;
+import '../navigator.dart';
+import 'detail_screen.dart';
 
 class DeviceListScreen extends StatefulWidget {
   @override
@@ -35,8 +37,8 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   @override
   void initState() {
     initMqtt();
-    // tbs.add(ThietBi('matb', 'madiadiem', 'trangthai', 'nguongcb', 'thoigian', 'mac', 'tu'));
-    // isLoading = false;
+    tbs.add(ThietBi('matb', 'madiadiem', 'trangthai', 'nguongcb', 'thoigian', 'mac', 'tu'));
+    isLoading = false;
     super.initState();
   }
 
@@ -140,9 +142,11 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
           verticalLine(),
           buildTextLabel('Mã', 4),
           verticalLine(),
-          buildTextLabel('Ngưỡng', 2),
+          buildTextLabel('Nhiệt độ', 2),
           verticalLine(),
           buildTextLabel('VỊ trí', 2),
+          verticalLine(),
+          buildTextLabel('Sửa', 1),
         ],
       ),
     );
@@ -177,11 +181,16 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   Widget itemView(int index) {
     return InkWell(
       onTap: () async {
-        selectedIndex = index;
-        Department d = Department('', '', '', Constants.mac);
-        pubTopic = GET_DEPARTMENT;
-        publishMessage(pubTopic, jsonEncode(d));
-        showLoadingDialog();
+        // selectedIndex = index;
+        // Department d = Department('', '', '', Constants.mac);
+        // pubTopic = GET_DEPARTMENT;
+        // publishMessage(pubTopic, jsonEncode(d));
+        // showLoadingDialog();
+        navigatorPush(
+            context,
+            DetailScreen(
+              madiadiem: tbs[index].madiadiem,
+            ));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 1),
@@ -198,6 +207,8 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                   buildTextData('${tbs[index].nguongcb}\u2103', 2),
                   verticalLine(),
                   buildTextData('${tbs[index].vitri}', 2),
+                  verticalLine(),
+                  buildEditBtn(index,1),
                 ],
               ),
             ),
@@ -205,6 +216,59 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildEditBtn(int index, int flex) {
+    return Expanded(
+      child: IconButton(
+          icon: Icon(Icons.edit),
+          onPressed: () async {
+            await showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    //this right here
+                    child: Container(
+                      child: Stack(
+                        children: [
+                          EditDeviceDialog(
+                            thietbi: tbs[selectedIndex],
+                            dropDownItems: dropDownItems,
+                            deleteCallback: (param) {
+                              getDevices();
+                            },
+                            updateCallback: (updatedDevice) {
+                              getDevices();
+                            },
+                          ),
+                          Positioned(
+                            right: 0.0,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                getDevices();
+                              },
+                              child: Align(
+                                alignment: Alignment.topRight,
+                                child: CircleAvatar(
+                                  radius: 14.0,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(Icons.close, color: Colors.black),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                });
+          }),
+      flex: flex,
     );
   }
 

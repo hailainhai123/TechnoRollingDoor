@@ -17,7 +17,8 @@ import '../helper/constants.dart' as Constants;
 class DetailScreen extends StatefulWidget {
   final String madiadiem;
 
-  const DetailScreen({Key key, this.madiadiem}) : super(key: key);
+  const
+  DetailScreen({Key key, this.madiadiem}) : super(key: key);
 
   @override
   _DetailScreenState createState() => _DetailScreenState();
@@ -80,7 +81,7 @@ class _DetailScreenState extends State<DetailScreen> {
     matchImages();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Giám sát'),
+        title: Text('Điều khiển'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -133,33 +134,44 @@ class _DetailScreenState extends State<DetailScreen> {
         // getProducts();
       },
       behavior: HitTestBehavior.translucent,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          border: Border.all(color: Colors.grey),
-          color: Colors.white,
-        ),
+      child: Center(
+        // padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        // margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        // decoration: BoxDecoration(
+        //   borderRadius: BorderRadius.circular(5),
+        //   border: Border.all(color: Colors.grey),
+        //   color: Colors.white,
+        // ),
         child: Column(
           children: [
-            Text(tb.vitri ?? "",
+            Text(tb.matb ?? "",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: tb.color ?? Colors.black,
+                  color: tb.color,
                 )),
-            SizedBox(height: 15),
-            // Text(
-            //   tb.nhietdo != null ? '${tb.nhietdo}\u2103' : '0\u2103',
-            // ),
-            // sleek(tb.nhietdo ?? "0"),
-            Container(
-              height: 80,
-              width: 80,
-              child: Image.asset(
-                'assets/images/ic_fire.jpg',
-                fit: BoxFit.cover,
-              ),
+            sleek(tb.nhietdo ?? "0"),
+            SizedBox(height: 30),
+            SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildButtonMode(context),
+                SizedBox(
+                  width: 50,
+                ),
+                buildButtonAir(context),
+              ],
+            ),
+            SizedBox(height: 50,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildButtonMode(context),
+                SizedBox(
+                  width: 50,
+                ),
+                buildButtonAir(context),
+              ],
             ),
             // Image.asset(
             //   'assets/icons/ic_scale.png',
@@ -167,12 +179,93 @@ class _DetailScreenState extends State<DetailScreen> {
             //   height: 40,
             //   fit: BoxFit.cover,
             // ),
-            GestureDetector(),
             SizedBox(height: 10),
             // Text(tb.can ?? '...'),
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildButtonMode(BuildContext context) {
+    return RaisedButton(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Lựa chọn chức năng'),
+            // content: new Text('Bạn muốn thoát ứng dụng?'),
+            actions: <Widget>[
+              new RaisedButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.ac_unit,
+                ),
+              ),
+              new RaisedButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.adjust,
+                ),
+              ),
+              new RaisedButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.wb_sunny_outlined,
+                ),
+              ),
+              new RaisedButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.waves_outlined,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      child: Text('Mode'),
+    );
+  }
+
+  Widget buildButtonAir(BuildContext context) {
+    return RaisedButton(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Lựa chọn chức năng'),
+            // content: new Text('Bạn muốn thoát ứng dụng?'),
+            actions: <Widget>[
+              new RaisedButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.ac_unit,
+                ),
+              ),
+              new RaisedButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.adjust,
+                ),
+              ),
+              new RaisedButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.wb_sunny_outlined,
+                ),
+              ),
+              new RaisedButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.waves_outlined,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      child: Text('Air'),
     );
   }
 
