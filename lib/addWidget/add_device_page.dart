@@ -1,11 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:health_care/helper/loader.dart';
 import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
+import 'package:health_care/model/door.dart';
 import 'package:health_care/model/thietbi.dart';
+import 'package:health_care/response/door_response.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
 import '../helper/constants.dart' as Constants;
@@ -78,17 +81,17 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                 ),
                 buildTextField(
                   'Vị trí',
-                  Icon(Icons.email),
+                  Icon(Icons.add_location),
                   TextInputType.text,
                   vitriController,
                 ),
-                buildTextField(
-                  'Ngưỡng cảnh báo',
-                  Icon(Icons.email),
-                  TextInputType.text,
-                  nameController,
-                ),
-                buildDepartment('Mã địa điểm *'),
+                // buildTextField(
+                //   'Ngưỡng cảnh báo',
+                //   Icon(Icons.email),
+                //   TextInputType.text,
+                //   nameController,
+                // ),
+                // buildDepartment('Mã địa điểm *'),
                 buildButton(),
               ],
             ),
@@ -200,20 +203,12 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
   }
 
   void tryAdd() {
-    if (idController.text.isEmpty || currentSelectedValue.isEmpty) {
+    if (idController.text.isEmpty || vitriController.text.isEmpty) {
       Dialogs.showAlertDialog(context, 'Vui lòng nhập đủ thông tin!');
       return;
     }
-    ThietBi tb = ThietBi(
-      idController.text,
-      currentSelectedValue,
-      '',
-      nameController.text,
-      '',
-      Constants.mac,
-      vitriController.text,
-    );
-    publishMessage('registertb', jsonEncode(tb));
+    Door door = Door(idController.text, vitriController.text, '','', Constants.mac);
+    publishMessage('registertb', jsonEncode(door));
   }
 
   Widget buildDepartment(String label) {
@@ -287,8 +282,8 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
   }
 
   void handle(String message) {
-    Map responseMap = jsonDecode(message);
-    if (responseMap['result'] == 'true' && responseMap['errorCode'] == '0') {
+    final doorResponse = doorResponseFromJson(message);
+    if (doorResponse.result == 'true' && doorResponse.errorCode == '0') {
       Navigator.pop(context);
     }
   }

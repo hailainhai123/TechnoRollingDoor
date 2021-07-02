@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get_mac/get_mac.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:health_care/Widget/bezierContainer.dart';
 import 'package:health_care/addWidget/patient_page.dart';
@@ -22,10 +24,11 @@ import '../helper/mqttClientWrapper.dart';
 
 // ignore: must_be_immutable
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key, this.title, this.registerUser}) : super(key: key);
 
   final String title;
   final User registerUser;
+
+  const LoginPage({Key key, this.title, this.registerUser,}) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -62,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     initMqtt();
     initOneSignal(Constants.one_signal_app_id);
+    // initPlatformState();
     // mqttClientWrapper =
     //     MQTTClientWrapper(() => print('Success'), (message) => login(message));
     // mqttClientWrapper.prepareMqttClient(Constants.mac);
@@ -99,6 +103,7 @@ class _LoginPageState extends State<LoginPage> {
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => login(message));
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
+    print('_LoginPageState.initMqtt MAC: ${Constants.mac}');
   }
 
   Future<void> getSharedPrefs() async {
@@ -159,6 +164,7 @@ class _LoginPageState extends State<LoginPage> {
 
     iduser = DeviceResponse.fromJson(responseMap).message;
     await sharedPrefsHelper.addStringToSF('iduser', iduser);
+    print('_LoginPageState.login iduser: $iduser');
 
     if (responseMap['result'] == 'true') {
       setState(() {
@@ -449,7 +455,7 @@ class _LoginPageState extends State<LoginPage> {
         height: 100,
         width: 100,
         child: Image.asset(
-          "assets/images/ic_flame_warning.png",
+          "assets/images/garage.png",
           fit: BoxFit.cover,
         ),
       ),

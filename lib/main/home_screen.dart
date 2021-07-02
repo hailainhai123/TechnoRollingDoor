@@ -11,7 +11,9 @@ import 'package:health_care/main/device_list_screen.dart';
 import 'package:health_care/main/home_page.dart';
 import 'package:health_care/main/user_list_screen.dart';
 import 'package:health_care/main/user_profile_page.dart';
+import 'package:health_care/rolling_door_remote.dart';
 import 'package:health_care/test_screen.dart';
+import 'package:health_care/helper/constants.dart' as Constants;
 
 
 class HomeScreen extends StatefulWidget {
@@ -82,34 +84,34 @@ class _HomeScreenState extends State<HomeScreen> {
           //   ),
           //   label: 'Cảnh báo',
           // ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.menu,
-            ),
-            label: 'Thiết bị',
-          ),
           // BottomNavigationBarItem(
           //   icon: Icon(
           //     Icons.meeting_room_outlined,
           //   ),
-          //   label: 'địa điểm',
+          //   label: 'Địa điểm',
           // ),
           // BottomNavigationBarItem(
           //   icon: Icon(
-          //     Icons.details,
+          //     Icons.menu,
           //   ),
-          //   label: 'Giám sát',
+          //   label: 'Thiết bị',
           // ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.add),
-          //   label: 'Thêm',
-          // ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(
-          //     Icons.account_box_outlined,
-          //   ),
-          //   label: 'Cá nhân',
-          // ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.details,
+            ),
+            label: 'Giám sát',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'Thêm',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.account_box_outlined,
+            ),
+            label: 'Cá nhân',
+          ),
         ];
 
         items = [
@@ -161,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void initWidgetOptions(int quyen) {
-    print('_HomeScreenState.initWidgetOptions');
+    print('_HomeScreenState.initWidgetOptions ${Constants.mac}');
     switch (quyen) {
       case 1:
         _widgetOptions = <Widget>[
@@ -169,14 +171,14 @@ class _HomeScreenState extends State<HomeScreen> {
           //   response: loginResponse,
           // ),
           // HomePage(),
-          // DeviceListScreen(),
           // DepartmentListScreen(),
-          TestScreen(),
-          // DetailScreen(),
-          // AddScreen(),
-          // UserProfilePage(
-          //   quyen: '1',
-          // ),
+          // DeviceListScreen(),
+          // RollingDoor(),
+          DetailScreen(),
+          AddScreen(),
+          UserProfilePage(
+            switchValue: false,
+          ),
         ];
         break;
       case 2:
@@ -185,7 +187,8 @@ class _HomeScreenState extends State<HomeScreen> {
           DetailPage(),
           AddPatientScreen(),
           UserProfilePage(
-            quyen: '1',
+            // quyen: '1',
+            switchValue: false,
           ),
         ];
         break;

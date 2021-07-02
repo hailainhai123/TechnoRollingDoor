@@ -6,11 +6,14 @@ import 'package:health_care/dialogWidget/edit_device_dialog.dart';
 import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/model/department.dart';
+import 'package:health_care/model/door.dart';
 import 'package:health_care/model/thietbi.dart';
 import 'package:health_care/response/device_response.dart';
+import 'package:health_care/response/door_response.dart';
 
 import '../helper/constants.dart' as Constants;
 import '../navigator.dart';
+import '../rolling_door_remote.dart';
 import 'detail_screen.dart';
 
 class DeviceListScreen extends StatefulWidget {
@@ -24,36 +27,35 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
 
   final GlobalKey<State> _keyLoader = new GlobalKey<State>();
 
-  List<ThietBi> tbs = List();
+  List<Door> doors = List();
+  List<Message> tbs = List();
+
   MQTTClientWrapper mqttClientWrapper;
 
   String pubTopic;
   int selectedIndex;
-  List<Department> departments = List();
-  var dropDownItems = [''];
 
   bool isLoading = true;
 
   @override
   void initState() {
     initMqtt();
-    tbs.add(ThietBi('matb', 'madiadiem', 'trangthai', 'nguongcb', 'thoigian', 'mac', 'tu'));
-    isLoading = false;
     super.initState();
   }
 
   Future<void> initMqtt() async {
     mqttClientWrapper = MQTTClientWrapper(
-        () => print('Success'), (message) => handleDevice(message));
+            () => print('Success'), (message) => handleDevice(message));
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
     getDevices();
   }
 
   void getDevices() async {
-    ThietBi t = ThietBi('', '', '', '', '', Constants.mac, '');
+    // ThietBi t = ThietBi('', '', '', '', '', Constants.mac, '');
+    Door door = Door('', '', '', '', Constants.mac);
     pubTopic = LOGIN_DEVICE;
-    publishMessage(pubTopic, jsonEncode(t));
-    showLoadingDialog();
+    publishMessage(pubTopic, jsonEncode(door));
+    // showLoadingDialog();
   }
 
   Future<void> publishMessage(String topic, String message) async {
@@ -82,23 +84,23 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
 
   Future<bool> _onWillPop() async {
     return (await showDialog(
-          context: context,
-          builder: (context) => new AlertDialog(
-            title: new Text('Bạn muốn thoát ứng dụng ?'),
-            // content: new Text('Bạn muốn thoát ứng dụng?'),
-            actions: <Widget>[
-              new FlatButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: new Text('Hủy'),
-              ),
-              new FlatButton(
-                onPressed: () => exit(0),
-                // Navigator.of(context).pop(true),
-                child: new Text('Đồng ý'),
-              ),
-            ],
+      context: context,
+      builder: (context) => new AlertDialog(
+        title: new Text('Bạn muốn thoát ứng dụng ?'),
+        // content: new Text('Bạn muốn thoát ứng dụng?'),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: new Text('Hủy'),
           ),
-        )) ??
+          new FlatButton(
+            onPressed: () => exit(0),
+            // Navigator.of(context).pop(true),
+            child: new Text('Đồng ý'),
+          ),
+        ],
+      ),
+    )) ??
         false;
   }
 
@@ -125,7 +127,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
         children: [
           buildTableTitle(),
           horizontalLine(),
-          buildListView(),
+          // buildListView(),
           horizontalLine(),
         ],
       ),
@@ -134,19 +136,19 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
 
   Widget buildTableTitle() {
     return Container(
-      color: Colors.yellow,
+      color: Colors.white,
       height: 40,
       child: Row(
         children: [
           buildTextLabel('STT', 1),
           verticalLine(),
-          buildTextLabel('Mã', 4),
+          buildTextLabel('Mã', 3),
           verticalLine(),
-          buildTextLabel('Nhiệt độ', 2),
-          verticalLine(),
-          buildTextLabel('VỊ trí', 2),
-          verticalLine(),
-          buildTextLabel('Sửa', 1),
+          // buildTextLabel('Ảnh', 3),
+          // verticalLine(),
+          buildTextLabel('Vị trí', 3),
+          // verticalLine(),
+          // buildTextLabel('Sửa', 1),
         ],
       ),
     );
@@ -181,16 +183,9 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   Widget itemView(int index) {
     return InkWell(
       onTap: () async {
-        // selectedIndex = index;
-        // Department d = Department('', '', '', Constants.mac);
-        // pubTopic = GET_DEPARTMENT;
-        // publishMessage(pubTopic, jsonEncode(d));
-        // showLoadingDialog();
         navigatorPush(
-            context,
-            DetailScreen(
-              madiadiem: tbs[index].madiadiem,
-            ));
+          context,
+          RollingDoor(),);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 1),
@@ -202,13 +197,13 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                 children: [
                   buildTextData('${index + 1}', 1),
                   verticalLine(),
-                  buildTextData(tbs[index].matb, 4),
+                  buildTextData(doors[index].matb, 3),
                   verticalLine(),
-                  buildTextData('${tbs[index].nguongcb}\u2103', 2),
+                  buildTextData('', 3),
                   verticalLine(),
-                  buildTextData('${tbs[index].vitri}', 2),
-                  verticalLine(),
-                  buildEditBtn(index,1),
+                  buildTextData('${doors[index].vitri}', 3),
+                  // verticalLine(),
+                  // buildEditBtn(index,1),
                 ],
               ),
             ),
@@ -224,49 +219,11 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
       child: IconButton(
           icon: Icon(Icons.edit),
           onPressed: () async {
-            await showDialog(
-                barrierDismissible: false,
-                context: context,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
-                    //this right here
-                    child: Container(
-                      child: Stack(
-                        children: [
-                          EditDeviceDialog(
-                            thietbi: tbs[selectedIndex],
-                            dropDownItems: dropDownItems,
-                            deleteCallback: (param) {
-                              getDevices();
-                            },
-                            updateCallback: (updatedDevice) {
-                              getDevices();
-                            },
-                          ),
-                          Positioned(
-                            right: 0.0,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pop();
-                                getDevices();
-                              },
-                              child: Align(
-                                alignment: Alignment.topRight,
-                                child: CircleAvatar(
-                                  radius: 14.0,
-                                  backgroundColor: Colors.white,
-                                  child: Icon(Icons.close, color: Colors.black),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                });
+            selectedIndex = index;
+            Department d = Department('', '', '', Constants.mac);
+            pubTopic = GET_DEPARTMENT;
+            publishMessage(pubTopic, jsonEncode(d));
+            // showLoadingDialog();
           }),
       flex: flex,
     );
@@ -287,21 +244,21 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
     return Expanded(
       child: data
           ? Container(
-              width: 5,
-              height: 5,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green,
-              ),
-            )
+        width: 5,
+        height: 5,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.green,
+        ),
+      )
           : Container(
-              width: 5,
-              height: 5,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.red,
-              ),
-            ),
+        width: 5,
+        height: 5,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.red,
+        ),
+      ),
       flex: flexValue,
     );
   }
@@ -329,68 +286,18 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   }
 
   void handleDevice(String message) async {
-    Map responseMap = jsonDecode(message);
-    var response = DeviceResponse.fromJson(responseMap);
-
     switch (pubTopic) {
       case GET_DEPARTMENT:
-        departments = response.id.map((e) => Department.fromJson(e)).toList();
-        dropDownItems.clear();
-        departments.forEach((element) {
-          dropDownItems.add(element.madiadiem);
-        });
-        hideLoadingDialog();
-        print('_DeviceListScreenState.handleDevice ${dropDownItems.length}');
-
-        await showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (BuildContext context) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                //this right here
-                child: Container(
-                  child: Stack(
-                    children: [
-                      EditDeviceDialog(
-                        thietbi: tbs[selectedIndex],
-                        dropDownItems: dropDownItems,
-                        deleteCallback: (param) {
-                          getDevices();
-                        },
-                        updateCallback: (updatedDevice) {
-                          getDevices();
-                        },
-                      ),
-                      Positioned(
-                        right: 0.0,
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            getDevices();
-                          },
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: CircleAvatar(
-                              radius: 14.0,
-                              backgroundColor: Colors.white,
-                              child: Icon(Icons.close, color: Colors.black),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            });
-
         break;
       case LOGIN_DEVICE:
-        tbs = response.id.map((e) => ThietBi.fromJson(e)).toList();
+        final doorResponse = doorResponseFromJson(message);
+        tbs = doorResponse.message ;
         setState(() {});
-        hideLoadingDialog();
+        doors.clear();
+        tbs.forEach((element) {
+          doors.add(Door(element.matb, element.vitri, '', element.id, Constants.mac));
+        });
+        print('_DetailScreenState.handle addpage doors: ${doors.length}');
         break;
     }
     pubTopic = '';

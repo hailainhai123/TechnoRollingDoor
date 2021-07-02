@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
+import 'package:health_care/model/door.dart';
 import 'package:health_care/model/thietbi.dart';
 
 import '../helper/constants.dart' as Constants;
 
 class EditDeviceDialog extends StatefulWidget {
-  final ThietBi thietbi;
+  final Door thietbi;
   final List<String> dropDownItems;
   final Function(dynamic) updateCallback;
   final Function(dynamic) deleteCallback;
@@ -73,9 +74,9 @@ class _EditDeviceDialogState extends State<EditDeviceDialog> {
 
   void initController() async {
     idController.text = widget.thietbi.matb;
-    currentSelectedValue = widget.thietbi.madiadiem;
-    timeController.text = widget.thietbi.thoigian;
-    thresholdController.text = widget.thietbi.nguongcb;
+    // currentSelectedValue = widget.thietbi.madiadiem;
+    // timeController.text = widget.thietbi.thoigian;
+    // thresholdController.text = widget.thietbi.nguongcb;
     vitriController.text = widget.thietbi.vitri;
   }
 
@@ -251,17 +252,17 @@ class _EditDeviceDialogState extends State<EditDeviceDialog> {
                 ),
                 new FlatButton(
                   onPressed: () {
-                    pubTopic = DELETE_DEVICE;
-                    var d = ThietBi(
-                      widget.thietbi.matb,
-                      widget.thietbi.madiadiem,
-                      '',
-                      '',
-                      '',
-                      Constants.mac,
-                      widget.thietbi.vitri,
-                    );
-                    publishMessage(pubTopic, jsonEncode(d));
+                    // pubTopic = DELETE_DEVICE;
+                    // var d = ThietBi(
+                    //   widget.thietbi.matb,
+                    //   widget.thietbi.madiadiem,
+                    //   '',
+                    //   '',
+                    //   '',
+                    //   Constants.mac,
+                    //   widget.thietbi.vitri,
+                    // );
+                    // publishMessage(pubTopic, jsonEncode(d));
                   },
                   child: new Text(
                     'Đồng ý',

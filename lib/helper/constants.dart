@@ -45,12 +45,12 @@ final String server_uri_key = 'serverUri';
 final String serverUri = "103.237.145.184";
 // final String serverUri = "192.168.2.6";
 // final int port = 1234;
-final int port = 4567;
+final int port = 3460;
 //  final int port = 6789;
 
 // final int port = 5678;
 
-const GET_DEVICE = 'gettbmadiadiem';
+const GET_DEVICE = 'gettb';
 const GET_HANG = 'gethang';
 const GET_MODEL = 'getmodel';
 const GET_POWER = 'getpower';
@@ -59,7 +59,17 @@ final String patient_login_topic = "loginbenhnhan";
 final String home_status = "statusnha";
 final String room_status = "statusphong";
 final String device_status = "statusphong";
-String mac = "02:00:00:00:00:00";
+// String mac = "02:00:00:00:00:00";
+String mac = "";
+
+const UPDATE_USER = 'updateuser';
+const UPDATE_PARENT = 'updateph';
+const DELETE_PARENT = 'deleteph';
+const DELETE_USER = 'deleteuser';
+const CHANGE_PASSWORD_USER = 'updatepass';
+const CHANGE_PASSWORD_PARENT = 'updatepassph';
+const GET_INFO_USER = 'getinfouser';
+const GET_INFO_PARENT = 'getinfoph';
 
 const one_signal_app_id = 'fe104981-6717-499d-a1a7-47bed17c8c83';
 

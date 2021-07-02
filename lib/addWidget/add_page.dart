@@ -8,8 +8,10 @@ import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
 import 'package:health_care/model/department.dart';
+import 'package:health_care/model/door.dart';
 import 'package:health_care/navigator.dart';
 import 'package:health_care/response/device_response.dart';
+import 'package:health_care/response/door_response.dart';
 
 import '../helper/constants.dart' as Constants;
 
@@ -24,6 +26,7 @@ class AddScreen extends StatefulWidget {
 
 class _AddScreenState extends State<AddScreen> {
   static const GET_DEPARTMENT = 'logindiadiem';
+  static const LOGIN_DEVICE = 'gettb';
 
   MQTTClientWrapper mqttClientWrapper;
   SharedPrefsHelper sharedPrefsHelper;
@@ -32,10 +35,22 @@ class _AddScreenState extends State<AddScreen> {
 
   bool isLoading = false;
 
+  String pubTopic;
+  List<Door> doors = List();
+  List<Message> tbs = List();
+
+
   @override
   void initState() {
-    showLoadingDialog();
+    // showLoadingDialog();
     initMqtt();
+
+
+    // isLoading = false;
+    // doors.add(Door('TECHNO1', 'A', '', '', 'mac'));
+    // doors.add(Door('TECHNO2', 'B', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+
     super.initState();
   }
 
@@ -44,8 +59,9 @@ class _AddScreenState extends State<AddScreen> {
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
 
-    Department d = Department('', '','', Constants.mac);
-    publishMessage(GET_DEPARTMENT, jsonEncode(d));
+    getDevices();
+    // Department d = Department('', '','', Constants.mac);
+    // publishMessage(GET_DEPARTMENT, jsonEncode(d));
   }
 
   @override
@@ -64,22 +80,153 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   Widget buildBody() {
+    return SingleChildScrollView(
+      child: Container(
+        width: double.infinity,
+        child: Column(
+          children: [
+            // buildButton('Thêm địa điểm ', Icons.meeting_room_outlined, 3),
+            // horizontalLine(),
+            // buildButton('Thêm tài khoản', Icons.account_box_outlined, 1),
+            horizontalLine(),
+            buildButton('Thêm thiết bị', Icons.devices, 2),
+            SizedBox(height: 30,),
+            buildBodyListDevice(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void getDevices() async {
+    Door door = Door('', '', '', '', Constants.mac);
+    pubTopic = LOGIN_DEVICE;
+    publishMessage(pubTopic, jsonEncode(door));
+    // showLoadingDialog();
+  }
+
+  Widget buildBodyListDevice() {
     return Container(
-      width: double.infinity,
       child: Column(
         children: [
-          buildButton('Thêm địa điểm ', Icons.meeting_room_outlined, 3),
-          // horizontalLine(),
-          // buildButton('Thêm tài khoản', Icons.account_box_outlined, 1),
           horizontalLine(),
-          buildButton('Thêm thiết bị', Icons.devices, 2),
+          buildTableTitle(),
+          horizontalLine(),
+          buildListView(),
+          horizontalLine(),
         ],
       ),
     );
   }
 
+  Widget buildTableTitle() {
+    return Container(
+      color: Colors.white,
+      height: 40,
+      child: Row(
+        children: [
+          verticalLine(),
+          buildTextLabel('STT', 1),
+          verticalLine(),
+          buildTextLabel('Mã', 3),
+          verticalLine(),
+          // buildTextLabel('Ảnh', 3),
+          // verticalLine(),
+          buildTextLabel('Vị trí', 3),
+          // verticalLine(),
+          // buildTextLabel('Sửa', 1),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTextLabel(String data, int flexValue) {
+    return Expanded(
+      child: Text(
+        data,
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
+      ),
+      flex: flexValue,
+    );
+  }
+
+  Widget buildListView() {
+    return Container(
+      child: ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: doors.length,
+        itemBuilder: (context, index) {
+          return itemView(index);
+        },
+      ),
+    );
+  }
+
+  Widget itemView(int index) {
+    return InkWell(
+      onTap: () async {
+
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 1),
+        child: Column(
+          children: [
+            Container(
+              height: 40,
+              child: Row(
+                children: [
+                  buildTextData('${index + 1}', 1),
+                  verticalLine(),
+                  buildTextData('${doors[index].matb}', 3),
+                  verticalLine(),
+                  buildTextData('${doors[index].vitri}', 3),
+                  // verticalLine(),
+                  // buildEditBtn(index,1),
+                ],
+              ),
+            ),
+            horizontalLine(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildEditBtn(int index, int flex) {
+    return Expanded(
+      child: IconButton(
+          icon: Icon(Icons.edit),
+          onPressed: () async {
+
+          }),
+      flex: flex,
+    );
+  }
+
+  Widget buildTextData(String data, int flexValue) {
+    return Expanded(
+      child: Text(
+        data,
+        style: TextStyle(fontSize: 18),
+        textAlign: TextAlign.center,
+      ),
+      flex: flexValue,
+    );
+  }
+
+
+  Widget verticalLine(){
+    return Container(
+      height: double.infinity,
+      width: 1,
+      color: Colors.black,
+    );
+  }
+
   Widget horizontalLine() {
-    return Container(height: 1, width: double.infinity, color: Colors.grey);
+    return Container(height: 1, width: double.infinity, color: Colors.black);
   }
 
   Widget buildButton(String text, IconData icon, int option) {
@@ -162,15 +309,21 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   void handle(String message) {
-    Map responseMap = jsonDecode(message);
-    var response = DeviceResponse.fromJson(responseMap);
-    departments = response.id.map((e) => Department.fromJson(e)).toList();
-    dropDownItems.clear();
-    departments.forEach((element) {
-      dropDownItems.add(element.madiadiem);
-    });
-    hideLoadingDialog();
-    print('_AddScreenState.handle ${dropDownItems.length}');
+
+    switch (pubTopic) {
+      case Constants.GET_DEVICE:
+        final doorResponse = doorResponseFromJson(message);
+        tbs = doorResponse.message ;
+        setState(() {});
+        doors.clear();
+        tbs.forEach((element) {
+          doors.add(Door(element.matb, element.vitri, '', element.id, Constants.mac));
+        });
+        print('_DetailScreenState.handle addpage doors: ${doors.length}');
+        break;
+    }
+    pubTopic = '';
+
   }
 
   void showLoadingDialog() {

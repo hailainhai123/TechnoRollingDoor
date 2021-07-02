@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:clay_containers/widgets/clay_container.dart';
@@ -7,18 +8,17 @@ import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
 import 'package:health_care/login/login_page.dart';
+import 'package:health_care/model/door.dart';
 import 'package:health_care/model/thietbi.dart';
 import 'package:health_care/navigator.dart';
 import 'package:health_care/response/device_response.dart';
+import 'package:health_care/response/door_response.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../helper/constants.dart' as Constants;
+import '../rolling_door_remote.dart';
 
 class DetailScreen extends StatefulWidget {
-  final String madiadiem;
-
-  const
-  DetailScreen({Key key, this.madiadiem}) : super(key: key);
 
   @override
   _DetailScreenState createState() => _DetailScreenState();
@@ -28,8 +28,10 @@ class _DetailScreenState extends State<DetailScreen> {
   MQTTClientWrapper mqttClientWrapper;
 
   final sharedPrefs = SharedPrefsHelper();
-  List<ThietBi> tbs = List();
+  List<Message> tbs = List();
+  List<Door> doors = List();
   String email;
+  String iduser;
   String pubTopic;
   bool isLoading = true;
 
@@ -41,15 +43,20 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   void initState() {
     getSharedPrefs();
+
+    // isLoading = false;
+    // doors.add(Door('TECHNO1', 'A', '', '', 'mac'));
+    // doors.add(Door('TECHNO2', 'B', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+
     initMqtt();
     super.initState();
   }
 
   void getDevices() async {
-    ThietBi t = ThietBi('', widget.madiadiem, '', '', '', Constants.mac, '');
-    // t.mathietbi = email;
+    Door door = Door('', '', '', iduser, Constants.mac);
     pubTopic = Constants.GET_DEVICE;
-    publishMessage(pubTopic, jsonEncode(t));
+    publishMessage(pubTopic, jsonEncode(door));
     showLoadingDialog();
 
     // tbs = createSampleDevices();
@@ -68,20 +75,16 @@ class _DetailScreenState extends State<DetailScreen> {
 
   void getSharedPrefs() async {
     email = await sharedPrefs.getStringValuesSF('email');
+    iduser = await sharedPrefs.getStringValuesSF('iduser');
   }
 
-  Future<void> matchImages() async {
-    tbs.forEach((element) {
-      element.nguongcb = sharedPrefs.getStringValuesSF('${element.matb}');
-    });
-  }
+
 
   @override
   Widget build(BuildContext context) {
-    matchImages();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Điều khiển'),
+        title: Text('Giám sát thiết bị'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -116,9 +119,9 @@ class _DetailScreenState extends State<DetailScreen> {
               ),
               shrinkWrap: true,
               itemBuilder: (context, index) {
-                return buildItem(tbs[index]);
+                return buildItem(index);
               },
-              itemCount: tbs.length,
+              itemCount: doors.length,
             ),
           )
         ],
@@ -126,146 +129,39 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  Widget buildItem(ThietBi tb) {
+  Widget buildItem(int index) {
     return GestureDetector(
       onTap: () {
-        _selectedDevice = tb.matb;
-        // navigatorPush(context, RollingDoor());
+        // _selectedDevice = tb.matb;
+        navigatorPush(context, RollingDoor(mathietbi: doors[index].matb,));
         // getProducts();
       },
       behavior: HitTestBehavior.translucent,
-      child: Center(
-        // padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-        // margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-        // decoration: BoxDecoration(
-        //   borderRadius: BorderRadius.circular(5),
-        //   border: Border.all(color: Colors.grey),
-        //   color: Colors.white,
-        // ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(color: Colors.grey),
+          color: Colors.blueAccent,
+        ),
         child: Column(
           children: [
-            Text(tb.matb ?? "",
+            SizedBox(height: 10,),
+            Text(doors[index].matb ?? "",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: tb.color,
                 )),
-            sleek(tb.nhietdo ?? "0"),
-            SizedBox(height: 30),
             SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                buildButtonMode(context),
-                SizedBox(
-                  width: 50,
-                ),
-                buildButtonAir(context),
-              ],
+            Image.asset(
+              'assets/images/garage_open.png',
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
             ),
-            SizedBox(height: 50,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                buildButtonMode(context),
-                SizedBox(
-                  width: 50,
-                ),
-                buildButtonAir(context),
-              ],
-            ),
-            // Image.asset(
-            //   'assets/icons/ic_scale.png',
-            //   width: 40,
-            //   height: 40,
-            //   fit: BoxFit.cover,
-            // ),
-            SizedBox(height: 10),
-            // Text(tb.can ?? '...'),
           ],
         ),
       ),
-    );
-  }
-
-  Widget buildButtonMode(BuildContext context) {
-    return RaisedButton(
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => new AlertDialog(
-            title: new Text('Lựa chọn chức năng'),
-            // content: new Text('Bạn muốn thoát ứng dụng?'),
-            actions: <Widget>[
-              new RaisedButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.ac_unit,
-                ),
-              ),
-              new RaisedButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.adjust,
-                ),
-              ),
-              new RaisedButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.wb_sunny_outlined,
-                ),
-              ),
-              new RaisedButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.waves_outlined,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      child: Text('Mode'),
-    );
-  }
-
-  Widget buildButtonAir(BuildContext context) {
-    return RaisedButton(
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => new AlertDialog(
-            title: new Text('Lựa chọn chức năng'),
-            // content: new Text('Bạn muốn thoát ứng dụng?'),
-            actions: <Widget>[
-              new RaisedButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.ac_unit,
-                ),
-              ),
-              new RaisedButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.adjust,
-                ),
-              ),
-              new RaisedButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.wb_sunny_outlined,
-                ),
-              ),
-              new RaisedButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.waves_outlined,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      child: Text('Air'),
     );
   }
 
@@ -287,31 +183,36 @@ class _DetailScreenState extends State<DetailScreen> {
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
 
-    getDevices();
+    Timer.periodic(Duration(seconds: 20), (timer) {
+        getDevices();
+      },
+    );
 
-    mqttClientWrapper.subscribe(widget.madiadiem, (_message) {
-      print('_DetailScreenState.initMqtt $_message');
-      var result = _message.replaceAll("\"", "").split('&');
 
-      // var scaleResponse = scaleResponseFromJson(_message);
-      tbs.forEach((element) {
-        print('_DetailScreenState.initMqtt ${element.matb}');
-        print('_DetailScreenState.initMqtt ${result[0]}');
-        if (element.matb == result[0]) {
-          element.nhietdo = result[1];
-          if (double.tryParse(element.nhietdo) >
-              double.tryParse(element.nguongcb)) {
-            element.color = Colors.red;
-          } else {
-            element.color = Colors.black;
-          }
-          // changeItemColor(element);
-          setState(() {});
-        } else {
-          print('_DetailScreenState.initMqtt false');
-        }
-      });
-    });
+
+    // mqttClientWrapper.subscribe(widget.madiadiem, (_message) {
+    //   print('_DetailScreenState.initMqtt $_message');
+    //   var result = _message.replaceAll("\"", "").split('&');
+    //
+    //   // var scaleResponse = scaleResponseFromJson(_message);
+    //   tbs.forEach((element) {
+    //     print('_DetailScreenState.initMqtt ${element.matb}');
+    //     print('_DetailScreenState.initMqtt ${result[0]}');
+    //     if (element.matb == result[0]) {
+    //       element.nhietdo = result[1];
+    //       if (double.tryParse(element.nhietdo) >
+    //           double.tryParse(element.nguongcb)) {
+    //         element.color = Colors.red;
+    //       } else {
+    //         element.color = Colors.black;
+    //       }
+    //       // changeItemColor(element);
+    //       setState(() {});
+    //     } else {
+    //       print('_DetailScreenState.initMqtt false');
+    //     }
+    //   });
+    // });
   }
 
   void changeItemColor(ThietBi element) {
@@ -323,14 +224,20 @@ class _DetailScreenState extends State<DetailScreen> {
 
   void handle(String message) {
     try {
-      Map responseMap = jsonDecode(message);
-      var response = DeviceResponse.fromJson(responseMap);
-
       switch (pubTopic) {
         case Constants.GET_DEVICE:
-          tbs = response.id.map((e) => ThietBi.fromJson(e)).toList();
+          final doorResponse = doorResponseFromJson(message);
+          tbs = doorResponse.message ;
           setState(() {});
-          hideLoadingDialog();
+          doors.clear();
+          tbs.forEach((element) {
+            doors.add(Door(element.matb, element.vitri, '', element.id, Constants.mac));
+          });
+          print('_DetailScreenState.handle doors: ${doors.length}');
+          // dropDownItems.clear();
+          // tbs.forEach((element) {
+          //   dropDownItems.add(element.hang);
+          // });
           break;
       }
       pubTopic = '';
