@@ -143,7 +143,7 @@ class _DetailScreenState extends State<DetailScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           border: Border.all(color: Colors.grey),
-          color: Colors.blueAccent,
+          color: Colors.white,
         ),
         child: Column(
           children: [
@@ -183,12 +183,12 @@ class _DetailScreenState extends State<DetailScreen> {
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
 
-    Timer.periodic(Duration(seconds: 20), (timer) {
-        getDevices();
-      },
-    );
+    // Timer.periodic(Duration(seconds: 2), (timer) {
+    //     getDevices();
+    //   },
+    // );
 
-
+    getDevices();
 
     // mqttClientWrapper.subscribe(widget.madiadiem, (_message) {
     //   print('_DetailScreenState.initMqtt $_message');

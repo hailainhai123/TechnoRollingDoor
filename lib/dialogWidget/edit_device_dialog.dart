@@ -42,7 +42,7 @@ class _EditDeviceDialogState extends State<EditDeviceDialog> {
   SharedPrefsHelper sharedPrefsHelper;
   String pubTopic = '';
   String currentSelectedValue;
-  ThietBi updatedDevice;
+  Door updatedDevice;
 
   @override
   void initState() {
@@ -103,19 +103,19 @@ class _EditDeviceDialogState extends State<EditDeviceDialog> {
                   TextInputType.visiblePassword,
                   idController,
                 ),
-                buildTextField(
-                  'Ngưỡng',
-                  Icon(Icons.vpn_key),
-                  TextInputType.number,
-                  thresholdController,
-                ),
+                // buildTextField(
+                //   'Ngưỡng',
+                //   Icon(Icons.vpn_key),
+                //   TextInputType.number,
+                //   thresholdController,
+                // ),
                 buildTextField(
                   'Ví trí',
                   Icon(Icons.vpn_key),
-                  TextInputType.number,
+                  TextInputType.text,
                   vitriController,
                 ),
-                buildDepartment(),
+                // buildDepartment(),
                 deleteButton(),
                 buildButton(),
               ],
@@ -252,17 +252,15 @@ class _EditDeviceDialogState extends State<EditDeviceDialog> {
                 ),
                 new FlatButton(
                   onPressed: () {
-                    // pubTopic = DELETE_DEVICE;
-                    // var d = ThietBi(
-                    //   widget.thietbi.matb,
-                    //   widget.thietbi.madiadiem,
-                    //   '',
-                    //   '',
-                    //   '',
-                    //   Constants.mac,
-                    //   widget.thietbi.vitri,
-                    // );
-                    // publishMessage(pubTopic, jsonEncode(d));
+                    pubTopic = DELETE_DEVICE;
+                    var d = Door(
+                      widget.thietbi.matb,
+                      widget.thietbi.vitri,
+                      '',
+                      '',
+                      Constants.mac,
+                    );
+                    publishMessage(pubTopic, jsonEncode(d));
                   },
                   child: new Text(
                     'Đồng ý',
@@ -322,14 +320,12 @@ class _EditDeviceDialogState extends State<EditDeviceDialog> {
   }
 
   Future<void> _tryEdit() async {
-    updatedDevice = ThietBi(
+    updatedDevice = Door(
       idController.text,
-      currentSelectedValue,
-      '',
-      thresholdController.text,
-      timeController.text,
-      Constants.mac,
       vitriController.text,
+      '',
+      '',
+      Constants.mac,
     );
     pubTopic = UPDATE_DEVICE;
     publishMessage(pubTopic, jsonEncode(updatedDevice));

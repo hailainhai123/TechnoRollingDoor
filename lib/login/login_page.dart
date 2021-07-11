@@ -144,17 +144,20 @@ class _LoginPageState extends State<LoginPage> {
     User user = User(Constants.mac, _emailController.text,
         _passwordController.text, '', '', '', '', '', playerid);
 
-    if (mqttClientWrapper.connectionState ==
-        MqttCurrentConnectionState.CONNECTED) {
-      if (switchValue) {
-        mqttClientWrapper.patientLogin(user);
-      } else {
-        mqttClientWrapper.login(user);
-      }
-    } else {
-      await initMqtt();
-      mqttClientWrapper.login(user);
-    }
+    await initMqtt();
+    mqttClientWrapper.login(user);
+
+    // if (mqttClientWrapper.connectionState ==
+    //     MqttCurrentConnectionState.CONNECTED) {
+    //   if (switchValue) {
+    //     mqttClientWrapper.patientLogin(user);
+    //   } else {
+    //     mqttClientWrapper.login(user);
+    //   }
+    // } else {
+    //   await initMqtt();
+    //   mqttClientWrapper.login(user);
+    // }
   }
 
   Future<void> login(String message) async {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:health_care/addWidget/add_account_page.dart';
 import 'package:health_care/addWidget/add_department_page.dart';
 import 'package:health_care/addWidget/add_device_page.dart';
+import 'package:health_care/dialogWidget/edit_device_dialog.dart';
 import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
@@ -32,6 +33,8 @@ class _AddScreenState extends State<AddScreen> {
   SharedPrefsHelper sharedPrefsHelper;
   List<Department> departments = List();
   List<String> dropDownItems = List();
+  int selectedIndex;
+
 
   bool isLoading = false;
 
@@ -50,6 +53,19 @@ class _AddScreenState extends State<AddScreen> {
     // doors.add(Door('TECHNO1', 'A', '', '', 'mac'));
     // doors.add(Door('TECHNO2', 'B', '', '', 'mac'));
     // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
+    // doors.add(Door('TECHNO3', 'C', '', '', 'mac'));
 
     super.initState();
   }
@@ -60,8 +76,6 @@ class _AddScreenState extends State<AddScreen> {
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
 
     getDevices();
-    // Department d = Department('', '','', Constants.mac);
-    // publishMessage(GET_DEPARTMENT, jsonEncode(d));
   }
 
   @override
@@ -85,9 +99,6 @@ class _AddScreenState extends State<AddScreen> {
         width: double.infinity,
         child: Column(
           children: [
-            // buildButton('Thêm địa điểm ', Icons.meeting_room_outlined, 3),
-            // horizontalLine(),
-            // buildButton('Thêm tài khoản', Icons.account_box_outlined, 1),
             horizontalLine(),
             buildButton('Thêm thiết bị', Icons.devices, 2),
             SizedBox(height: 30,),
@@ -167,7 +178,50 @@ class _AddScreenState extends State<AddScreen> {
   Widget itemView(int index) {
     return InkWell(
       onTap: () async {
-
+        selectedIndex = index;
+        await showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                //this right here
+                child: Container(
+                  child: Stack(
+                    children: [
+                      EditDeviceDialog(
+                        thietbi: doors[selectedIndex],
+                        // dropDownItems: dropDownItems,
+                        deleteCallback: (param) {
+                          getDevices();
+                        },
+                        updateCallback: (updatedDevice) {
+                          getDevices();
+                        },
+                      ),
+                      Positioned(
+                        right: 0.0,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            getDevices();
+                          },
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: CircleAvatar(
+                              radius: 14.0,
+                              backgroundColor: Colors.white,
+                              child: Icon(Icons.close, color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 1),
