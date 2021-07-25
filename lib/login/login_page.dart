@@ -15,6 +15,7 @@ import 'package:health_care/model/patient_response.dart';
 import 'package:health_care/model/user.dart';
 import 'package:health_care/navigator.dart';
 import 'package:health_care/response/LoginPostResponse.dart';
+import 'package:health_care/response/LoginResponse.dart';
 import 'package:health_care/singup/signup.dart';
 import 'package:health_care/singup/signup_http.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -121,6 +122,16 @@ class _LoginPageState extends State<LoginPage> {
       );
       print('Response statuscode: ${uriResponse.statusCode}');
       print('Response body: ${uriResponse.body}');
+
+      //khanhlh
+      //parse response body to object LoginResponse
+      var loginResponse = loginResponseFromJson(uriResponse.body);
+      print('$loginResponse');
+      var token = loginResponse.data.token;
+
+      //save token to sharedPreferences
+      sharedPrefsHelper.addStringToSF("token", token);
+
       if (uriResponse.statusCode == 200) {
         print('Login success');
         navigatorPushAndRemoveUntil(

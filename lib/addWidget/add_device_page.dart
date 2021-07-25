@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -8,10 +9,13 @@ import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
 import 'package:health_care/model/door.dart';
 import 'package:health_care/model/thietbi.dart';
+import 'package:health_care/request/DeviceRequest.dart';
+import 'package:health_care/response/DeviceResponse.dart';
 import 'package:health_care/response/door_response.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
 import '../helper/constants.dart' as Constants;
+import 'package:http/http.dart' as http;
 
 class AddDeviceScreen extends StatefulWidget {
   final List<String> dropDownItems;
@@ -40,7 +44,6 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
     initMqtt();
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +210,8 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
       Dialogs.showAlertDialog(context, 'Vui lòng nhập đủ thông tin!');
       return;
     }
-    Door door = Door(idController.text, vitriController.text, '','', Constants.mac);
+    Door door =
+        Door(idController.text, vitriController.text, '', '', Constants.mac);
     publishMessage('registertb', jsonEncode(door));
   }
 
@@ -295,6 +299,50 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
     } else {
       await initMqtt();
       mqttClientWrapper.publishMessage(topic, message);
+    }
+  }
+
+  Future<void> tryAddDevice() async {
+    var client = http.Client();
+    try {
+      var token = await sharedPrefsHelper.getStringValuesSF("token");
+
+      Map<String, String> requestHeaders = {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': '$token'
+      };
+
+      var function = Func(
+          id: 0, deviceId: 0, functionCode: "string", functionName: "string");
+
+      var deviceRequest = DeviceRequest(
+        id: 0,
+        name: "string",
+        icon: "string",
+        functions: [function],
+      );
+
+      var uriResponse = await client.post(
+        Uri.parse('http://103.146.23.146:8082/api/Accounts/login'),
+        headers: requestHeaders,
+        // headers: {
+        //   HttpHeaders.authorizationHeader: '$token',
+        // },
+        body: deviceRequestToJson(deviceRequest),
+      );
+      print('Response statuscode: ${uriResponse.statusCode}');
+      print('Response body: ${uriResponse.body}');
+
+      //parse response body to object DeviceResponse
+      var deviceResponse = deviceResponseFromJson(uriResponse.body);
+      print('$deviceResponse');
+
+      if (uriResponse.statusCode == 200) {
+        print('Login success');
+      } else {}
+    } finally {
+      client.close();
     }
   }
 

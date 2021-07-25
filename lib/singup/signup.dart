@@ -6,6 +6,7 @@ import 'package:health_care/Widget/bezierContainer.dart';
 import 'package:health_care/helper/loader.dart';
 import 'package:health_care/login/login_page.dart';
 import 'package:health_care/model/user.dart';
+import 'package:health_care/response/RegisterResponse.dart';
 
 import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
@@ -257,6 +258,12 @@ class _SignUpPageState extends State<SignUpPage> {
           }),
       );
       print('_SignUpPageState.post: ${uriResponse.statusCode}');
+
+      //khanhlh
+      //parse body response to RegisterResponse
+      var registerResponse = registerResponseFromJson(uriResponse.body);
+      print('$registerResponse');
+
     } finally {
       client.close();
     }
