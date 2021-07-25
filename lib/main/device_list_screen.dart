@@ -5,10 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:health_care/dialogWidget/edit_device_dialog.dart';
 import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
-import 'package:health_care/model/department.dart';
 import 'package:health_care/model/door.dart';
 import 'package:health_care/model/thietbi.dart';
-import 'package:health_care/response/device_response.dart';
 import 'package:health_care/response/door_response.dart';
 
 import '../helper/constants.dart' as Constants;
@@ -219,11 +217,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
       child: IconButton(
           icon: Icon(Icons.edit),
           onPressed: () async {
-            selectedIndex = index;
-            Department d = Department('', '', '', Constants.mac);
-            pubTopic = GET_DEPARTMENT;
-            publishMessage(pubTopic, jsonEncode(d));
-            // showLoadingDialog();
+
           }),
       flex: flex,
     );

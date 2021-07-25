@@ -549,10 +549,8 @@ import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
 import 'package:health_care/login/login_page.dart';
-import 'package:health_care/model/department.dart';
 import 'package:health_care/model/user.dart';
 import 'package:health_care/navigator.dart';
-import 'package:health_care/response/device_response.dart';
 
 class UserProfilePage extends StatefulWidget {
   final bool switchValue;
@@ -568,7 +566,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
   SharedPrefsHelper sharedPrefsHelper;
   User user;
   String pubTopic = '';
-  List<Department> departments = List();
   var dropDownItems = [''];
 
   bool isLoading = true;
@@ -853,50 +850,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   handle(String message) async {
-    DeviceResponse response = DeviceResponse.fromJson(jsonDecode(message));
-
-    print('Response: ${response.id}');
 
     switch (pubTopic) {
-      // case Constants.GET_DEPARTMENT:
-      //   departments = response.id.map((e) => Department.fromJson(e)).toList();
-      //   dropDownItems.clear();
-      //   departments.forEach((element) {
-      //     dropDownItems.add(element.makhoa);
-      //   });
-      //   hideLoadingDialog();
-      //   print('_DeviceListScreenState.handleDevice ${dropDownItems.length}');
-      //   print('_DeviceListScreenState.handleDevice ${user.toString()}');
-      //
-      //   await showDialog(
-      //       context: context,
-      //       builder: (BuildContext context) {
-      //         return Dialog(
-      //           shape: RoundedRectangleBorder(
-      //               borderRadius: BorderRadius.circular(10.0)),
-      //           //this right here
-      //           child: Container(
-      //             child: EditUserDialog(
-      //               user: user,
-      //               deleteCallback: (param) {
-      //                 getInfoUser();
-      //               },
-      //               updateCallback: (updatedDevice) {
-      //                 getInfoUser();
-      //               },
-      //               switchValue: widget.switchValue,
-      //             ),
-      //           ),
-      //         );
-      //       });
-      //   break;
       case Constants.GET_INFO_USER:
       case Constants.GET_INFO_PARENT:
-        setState(() {
-          List<User> users = response.id.map((e) => User.fromJson(e)).toList();
-          user = users[0];
-        });
-        hideLoadingDialog();
         break;
     }
     pubTopic = '';
@@ -906,14 +863,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
     setState(() {
       isLoading = true;
     });
-    // Dialogs.showLoadingDialog(context, _keyLoader);
   }
 
   void hideLoadingDialog() {
     setState(() {
       isLoading = false;
     });
-    // Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
   }
 
   Future<void> publishMessage(String topic, String message) async {

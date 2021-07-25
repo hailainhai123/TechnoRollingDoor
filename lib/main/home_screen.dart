@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:health_care/addWidget/add_page.dart';
-import 'package:health_care/addWidget/add_patient_page.dart';
 import 'package:health_care/helper/bottom_navigation_bar.dart';
 import 'package:health_care/helper/constants.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
-import 'package:health_care/main/department_list_screen.dart';
-import 'package:health_care/main/detail_page.dart';
 import 'package:health_care/main/detail_screen.dart';
 import 'package:health_care/main/device_list_screen.dart';
-import 'package:health_care/main/home_page.dart';
-import 'package:health_care/main/user_list_screen.dart';
 import 'package:health_care/main/user_profile_page.dart';
 import 'package:health_care/rolling_door_remote.dart';
-import 'package:health_care/test_screen.dart';
 import 'package:health_care/helper/constants.dart' as Constants;
 
 
@@ -167,13 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (quyen) {
       case 1:
         _widgetOptions = <Widget>[
-          // UserListScreen(
-          //   response: loginResponse,
-          // ),
-          // HomePage(),
-          // DepartmentListScreen(),
-          // DeviceListScreen(),
-          // RollingDoor(),
           DetailScreen(),
           AddScreen(),
           UserProfilePage(
@@ -182,15 +169,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ];
         break;
       case 2:
-        _widgetOptions = <Widget>[
-          HomePage(),
-          DetailPage(),
-          AddPatientScreen(),
-          UserProfilePage(
-            // quyen: '1',
-            switchValue: false,
-          ),
-        ];
         break;
     }
   }

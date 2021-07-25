@@ -1,17 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:health_care/addWidget/add_account_page.dart';
-import 'package:health_care/addWidget/add_department_page.dart';
 import 'package:health_care/addWidget/add_device_page.dart';
 import 'package:health_care/dialogWidget/edit_device_dialog.dart';
 import 'package:health_care/helper/models.dart';
 import 'package:health_care/helper/mqttClientWrapper.dart';
 import 'package:health_care/helper/shared_prefs_helper.dart';
-import 'package:health_care/model/department.dart';
 import 'package:health_care/model/door.dart';
 import 'package:health_care/navigator.dart';
-import 'package:health_care/response/device_response.dart';
 import 'package:health_care/response/door_response.dart';
 
 import '../helper/constants.dart' as Constants;
@@ -31,7 +27,6 @@ class _AddScreenState extends State<AddScreen> {
 
   MQTTClientWrapper mqttClientWrapper;
   SharedPrefsHelper sharedPrefsHelper;
-  List<Department> departments = List();
   List<String> dropDownItems = List();
   int selectedIndex;
 
@@ -288,15 +283,6 @@ class _AddScreenState extends State<AddScreen> {
       onTap: () {
         switch (option) {
           case 1:
-            if (dropDownItems.isEmpty) {
-              showPopup(context);
-            } else {
-              navigatorPush(
-                  context,
-                  AddAccountScreen(
-                    dropDownItems: dropDownItems,
-                  ));
-            }
             break;
           case 2:
               navigatorPush(
@@ -306,7 +292,6 @@ class _AddScreenState extends State<AddScreen> {
                   ));
             break;
           case 3:
-            navigatorPush(context, AddDepartmentScreen());
             break;
         }
       },

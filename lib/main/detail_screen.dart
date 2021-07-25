@@ -11,7 +11,6 @@ import 'package:health_care/login/login_page.dart';
 import 'package:health_care/model/door.dart';
 import 'package:health_care/model/thietbi.dart';
 import 'package:health_care/navigator.dart';
-import 'package:health_care/response/device_response.dart';
 import 'package:health_care/response/door_response.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 

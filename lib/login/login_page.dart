@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:get_mac/get_mac.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:health_care/Widget/bezierContainer.dart';
-import 'package:health_care/addWidget/patient_page.dart';
 import 'package:health_care/helper/constants.dart';
 import 'package:health_care/helper/loader.dart';
 import 'package:health_care/helper/models.dart';
@@ -15,20 +14,25 @@ import 'package:health_care/main/home_screen.dart';
 import 'package:health_care/model/patient_response.dart';
 import 'package:health_care/model/user.dart';
 import 'package:health_care/navigator.dart';
-import 'package:health_care/response/device_response.dart';
+import 'package:health_care/response/LoginPostResponse.dart';
 import 'package:health_care/singup/signup.dart';
+import 'package:health_care/singup/signup_http.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../helper/constants.dart' as Constants;
+import 'package:http/http.dart' as http;
 import '../helper/mqttClientWrapper.dart';
 
 // ignore: must_be_immutable
 class LoginPage extends StatefulWidget {
-
   final String title;
   final User registerUser;
 
-  const LoginPage({Key key, this.title, this.registerUser,}) : super(key: key);
+  const LoginPage({
+    Key key,
+    this.title,
+    this.registerUser,
+  }) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -44,6 +48,8 @@ class _LoginPageState extends State<LoginPage> {
   var status;
   String playerid = '';
   bool switchValue = false;
+
+  var client = http.Client();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -63,12 +69,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    initMqtt();
+    // initMqtt();
     initOneSignal(Constants.one_signal_app_id);
-    // initPlatformState();
-    // mqttClientWrapper =
-    //     MQTTClientWrapper(() => print('Success'), (message) => login(message));
-    // mqttClientWrapper.prepareMqttClient(Constants.mac);
     sharedPrefsHelper = SharedPrefsHelper();
     getSharedPrefs();
   }
@@ -106,6 +108,55 @@ class _LoginPageState extends State<LoginPage> {
     print('_LoginPageState.initMqtt MAC: ${Constants.mac}');
   }
 
+  Future<void> post() async {
+    var client = http.Client();
+    try {
+      var uriResponse = await client.post(
+          Uri.parse('http://103.146.23.146:8082/api/Accounts/login'),
+          headers: <String, String>{
+            'content-type': 'application/json; charset=utf-8'
+          },
+          body: loginPostResponseToJson(LoginPostResponse(phoneNumber: "0123456789",
+              password: "123456", isRemember: true)),
+      );
+      print('Response statuscode: ${uriResponse.statusCode}');
+      print('Response body: ${uriResponse.body}');
+      if (uriResponse.statusCode == 200) {
+        print('Login success');
+        navigatorPushAndRemoveUntil(
+          context,
+          HomeScreen(),
+        );
+      } else {
+        this._showToast(context);
+      }
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<void> httpPost() async {
+    var url = Uri.parse('http://103.146.23.146:8082/api/Accounts/login');
+    var response = await http.post(
+      url,
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    print(await http.read('http://103.146.23.146:8082/api/Accounts/login'));
+  }
+
+  Future<void> get() async {
+    var client = http.Client();
+    try {
+      var uriResponseGet = await client.get(
+        Uri.parse('http://103.146.23.146:8082/api/Accounts/register'),
+      );
+      print('_SignUpPageState.post: $uriResponseGet');
+    } finally {
+      client.close();
+    }
+  }
+
   Future<void> getSharedPrefs() async {
     _emailController.text = await sharedPrefsHelper.getStringValuesSF('email');
     _passwordController.text =
@@ -135,7 +186,6 @@ class _LoginPageState extends State<LoginPage> {
       }
     });
     try {
-
       playerid = await status.subscriptionStatus.userId;
     } catch (e) {
       print('_LoginPageState._tryLogin error: ${e.toString()}');
@@ -146,18 +196,6 @@ class _LoginPageState extends State<LoginPage> {
 
     await initMqtt();
     mqttClientWrapper.login(user);
-
-    // if (mqttClientWrapper.connectionState ==
-    //     MqttCurrentConnectionState.CONNECTED) {
-    //   if (switchValue) {
-    //     mqttClientWrapper.patientLogin(user);
-    //   } else {
-    //     mqttClientWrapper.login(user);
-    //   }
-    // } else {
-    //   await initMqtt();
-    //   mqttClientWrapper.login(user);
-    // }
   }
 
   Future<void> login(String message) async {
@@ -165,8 +203,6 @@ class _LoginPageState extends State<LoginPage> {
     print('_LoginPageState.login $message');
     Map responseMap = jsonDecode(message);
 
-    iduser = DeviceResponse.fromJson(responseMap).message;
-    await sharedPrefsHelper.addStringToSF('iduser', iduser);
     print('_LoginPageState.login iduser: $iduser');
 
     if (responseMap['result'] == 'true') {
@@ -189,58 +225,20 @@ class _LoginPageState extends State<LoginPage> {
           'password', _passwordController.text);
       await sharedPrefsHelper.addBoolToSF('switchValue', _switchValue);
       await sharedPrefsHelper.addBoolToSF('login', true);
-      await sharedPrefsHelper.addIntToSF('quyen', responseMap['quyen']);
-      if (switchValue) {
-        final response = patientResponseFromJson(message);
-        if (response.patients.length > 0) {
-          if (response.patients[0].trangthaibn == '1') {
-            Dialogs.showAlertDialog(context, 'Bệnh nhân đã ra viện!');
-          } else {
-            navigatorPushAndRemoveUntil(
-                context,
-                PatientPage(
-                  patientResponse: response,
-                ));
-          }
-        }
-      } else {
-        navigatorPushAndRemoveUntil(
-          context,
-          HomeScreen(
-            loginResponse: responseMap,
-          ),
-        );
-      }
+      navigatorPushAndRemoveUntil(
+        context,
+        HomeScreen(
+          loginResponse: responseMap,
+        ),
+      );
     } else {
       this._showToast(context);
-      // Scaffold.of(context).showSnackBar(snackbar);
     }
   }
 
   void _showToast(BuildContext context) {
     Dialogs.showAlertDialog(
         context, 'Đăng nhập thất bại, vui lòng thử lại sau!');
-  }
-
-  Widget _backButton() {
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(left: 0, top: 10, bottom: 10),
-              child: Icon(Icons.keyboard_arrow_left, color: Colors.black),
-            ),
-            Text('Back',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _entryField(String title, TextEditingController _controller,
@@ -280,8 +278,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget _submitButton() {
     return InkWell(
       onTap: () async {
-        showLoadingDialog();
-        await _tryLogin();
+        post();
+        // httpPost();
+        // showLoadingDialog();
+        // await _tryLogin();
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -385,7 +385,7 @@ class _LoginPageState extends State<LoginPage> {
     return InkWell(
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => SignUpPage()));
+            context, MaterialPageRoute(builder: (context) => SignUpHttp()));
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 20),
@@ -411,41 +411,6 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _title() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.add_circle_outline,
-          size: 40,
-          color: Colors.red,
-        ),
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-              text: 'H',
-              style: GoogleFonts.portLligatSans(
-                textStyle: Theme.of(context).textTheme.display1,
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
-                color: Colors.blueAccent,
-              ),
-              children: [
-                TextSpan(
-                  text: 'ealth',
-                  style: TextStyle(color: Colors.black, fontSize: 30),
-                ),
-                TextSpan(
-                  text: 'Care',
-                  style: TextStyle(color: Colors.blueAccent, fontSize: 30),
-                ),
-              ]),
-        ),
-      ],
     );
   }
 
@@ -502,13 +467,10 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       SizedBox(height: height * .2),
-                      // _title(),
                       _header(),
                       SizedBox(height: 50),
                       _emailPasswordWidget(),
-                      // _saveSwitch(),
                       _submitButton(),
-                      // switchContainer(),
                       _divider(),
                       _facebookButton(),
                       _createAccountLabel(),
@@ -520,32 +482,6 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget switchContainer() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            'Quản lý',
-          ),
-          CupertinoSwitch(
-            activeColor: Colors.blue,
-            value: switchValue,
-            onChanged: (value) {
-              setState(() {
-                switchValue = value;
-              });
-            },
-          ),
-          Text(
-            'Bệnh nhân',
-          ),
-        ],
       ),
     );
   }
